@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Futebol em Foco - Placares, Noticias e Tabelas</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        pitch: {
+                            50: '#f0fdf4',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                            900: '#064e3b',
+                        },
+                        gold: {
+                            400: '#facc15',
+                            500: '#eab308',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(15, 23, 42, 0.6);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #10b981;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #059669;
+        }
+        
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .light .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .pulse-live {
+            box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            animation: pulse-red 1.5s infinite;
+        }
+        @keyframes pulse-red {
+            0% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+            }
+            70% {
+                transform: scale(1);
+                box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+            }
+            100% {
+                transform: scale(0.95);
+                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 light:bg-slate-50 light:text-slate-900 transition-colors duration-300 font-sans min-h-screen flex flex-col">
+
+    <!-- CABEÇALHO / HEADER -->
+    <header class="sticky top-0 z-40 w-full border-b border-slate-800 dark:bg-slate-900/90 light:bg-white/90 backdrop-blur-md transition-colors duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 sm:h-20">
+                <!-- Logo -->
+                <a href="#inicio" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-pitch-600 to-pitch-500 flex items-center justify-center text-white shadow-lg shadow-pitch-500/30 group-hover:scale-105 transition-transform duration-300">
+                        <i data-lucide="dribbble" class="w-6 h-6 animate-spin-slow"></i>
+                    </div>
+                    <div>
+                        <span class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-emerald-400 via-pitch-500 to-teal-300 bg-clip-text text-transparent">
+                            FUTEBOL EM FOCO
+                        </span>
+                        <span class="block text-[10px] font-semibold text-pitch-500 dark:text-pitch-400 tracking-widest uppercase -mt-1">
+                            Portal Esportivo
+                        </span>
+                    </div>
+                </a>
+
+                <!-- Desktop Navigation -->
+                <nav class="hidden md:flex items-center gap-1 lg:gap-2">
+                    <a href="#inicio" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-pitch-500 dark:hover:text-pitch-400 transition-colors">Início</a>
+                    <a href="#placares" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-pitch-500 dark:hover:text-pitch-400 transition-colors flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                        Placares
+                    </a>
+                    <a href="#noticias" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-pitch-500 dark:hover:text-pitch-400 transition-colors">Notícias</a>
+                    <a href="#tabelas" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-pitch-500 dark:hover:text-pitch-400 transition-colors">Tabelas</a>
+                    <a href="#videos" class="px-3 py-2 rounded-lg text-sm font-medium hover:text-pitch-500 dark:hover:text-pitch-400 transition-colors">Vídeos</a>
+                </nav>
+
+                <!-- Action Controls -->
+                <div class="flex items-center gap-3">
+                    <!-- Dark/Light Theme Toggle -->
+                    <button id="themeToggle" aria-label="Alternar tema" class="p-2.5 rounded-xl border border-slate-700 dark:border-slate-800 bg-slate-800/50 dark:bg-slate-800/80 hover:bg-slate-700/50 dark:hover:bg-slate-700 transition-all duration-300 text-yellow-400 dark:text-slate-200">
+                        <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                        <i data-lucide="moon" class="w-5 h-5 block dark:hidden text-slate-700"></i>
+                    </button>
+
+                    <!-- Mobile Menu Button -->
+                    <button id="mobileMenuBtn" aria-label="Abrir Menu" class="md:hidden p-2.5 rounded-xl border border-slate-700 dark:border-slate-800 bg-slate-800/50 dark:bg-slate-800/80 hover:bg-slate-700/50 transition-colors">
+                        <i data-lucide="menu" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div id="mobileMenu" class="hidden md:hidden border-b border-slate-800 bg-slate-900/95 dark:bg-slate-900/95 light:bg-white/95 px-4 pt-2 pb-4 space-y-2">
+            <a href="#inicio" class="block px-3 py-2 rounded-lg text-base font-medium hover:bg-slate-800/50">Início</a>
+            <a href="#placares" class="block px-3 py-2 rounded-lg text-base font-medium hover:bg-slate-800/50 text-emerald-400">Placares ao Vivo</a>
+            <a href="#noticias" class="block px-3 py-2 rounded-lg text-base font-medium hover:bg-slate-800/50">Notícias</a>
+            <a href="#tabelas" class="block px-3 py-2 rounded-lg text-base font-medium hover:bg-slate-800/50">Tabelas</a>
+            <a href="#videos" class="block px-3 py-2 rounded-lg text-base font-medium hover:bg-slate-800/50">Vídeos & Highlights</a>
+        </div>
+    </header>
+
+    <main class="flex-grow space-y-12 pb-16">
+        <!-- SEÇÃO HERO / DESTAQUE PRINCIPAL -->
+        <section id="inicio" class="relative pt-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Banner Principal Carousel -->
+                <div class="lg:col-span-2 relative rounded-3xl overflow-hidden shadow-2xl min-h-[380px] sm:min-h-[460px] flex flex-col justify-end p-6 sm:p-8 group border border-slate-800">
+                    <!-- Background Image with Gradient Overlay -->
+                    <div id="heroBg" class="absolute inset-0 bg-cover bg-center transition-all duration-700 scale-105 group-hover:scale-100" style="background-image: url('https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1200&auto=format&fit=crop');"></div>
+                    <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/60 to-transparent"></div>
+
+                    <!-- Badge & Category -->
+                    <div class="relative z-10 space-y-3">
+                        <div class="flex items-center gap-2">
+                            <span id="heroCategory" class="px-3 py-1 rounded-full text-xs font-bold bg-pitch-500 text-slate-950 uppercase tracking-wider">
+                                Super Clássico
+                            </span>
+                            <span class="flex items-center gap-1 text-xs text-slate-300 bg-slate-900/60 px-2.5 py-1 rounded-full backdrop-blur-md">
+                                <i data-lucide="clock" class="w-3.5 h-3.5"></i> Há 15 minutos
+                            </span>
+                        </div>
+
+                        <!-- Hero Title & Subtitle -->
+                        <h1 id="heroTitle" class="text-2xl sm:text-4xl font-black text-white leading-tight drop-shadow-md">
+                            Decisão Gloriosa: Flamengo e Palmeiras travam duelo histórico pela liderança
+                        </h1>
+                        <p id="heroSubtitle" class="text-sm sm:text-base text-slate-300 line-clamp-2 max-w-2xl">
+                            Com Maracanã lotado, equipes medem forças valendo o topo da tabela do Brasileirão em jogo de alta intensidade táctica.
+                        </p>
+
+                        <!-- Controls & Call to Action -->
+                        <div class="pt-2 flex items-center justify-between">
+                            <button onclick="openNewsModal('hero')" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-pitch-500 hover:bg-pitch-600 text-slate-950 font-bold transition-all transform hover:-translate-y-0.5 shadow-lg shadow-pitch-500/25">
+                                Ler Matéria Completa
+                                <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                            </button>
+
+                            <!-- Carousel Dots -->
+                            <div class="flex items-center gap-2">
+                                <button onclick="setHeroSlide(0)" class="hero-dot w-8 h-2 rounded-full bg-pitch-500 transition-all"></button>
+                                <button onclick="setHeroSlide(1)" class="hero-dot w-2 h-2 rounded-full bg-slate-600 hover:bg-slate-400 transition-all"></button>
+                                <button onclick="setHeroSlide(2)" class="hero-dot w-2 h-2 rounded-full bg-slate-600 hover:bg-slate-400 transition-all"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Destaques Secundários / Tendências -->
+                <div class="flex flex-col gap-4 justify-between">
+                    <div class="glass-card rounded-2xl p-4 border border-slate-800 flex items-center justify-between">
+                        <div class="flex items-center gap-2 text-gold-400 font-bold text-sm">
+                            <i data-lucide="trending-up" class="w-4 h-4"></i>
+                            Em Alta Hoje
+                        </div>
+                        <span class="text-xs text-slate-400">Atualizado agora</span>
+                    </div>
+
+                    <!-- Mini Highlight 1 -->
+                    <div onclick="openNewsModal('trend1')" class="glass-card rounded-2xl p-4 hover:border-pitch-500/50 cursor-pointer transition-all group flex gap-4 items-center">
+                        <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 relative">
+                            <img src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=300&auto=format&fit=crop" alt="Mercado da bola" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold text-pitch-400 uppercase">Mercado da Bola</span>
+                            <h2 class="text-sm font-bold text-slate-100 group-hover:text-pitch-400 transition-colors line-clamp-2">
+                                Atacante estelar acerta transferência milionária para a Europa
+                            </h2>
+                            <span class="text-xs text-slate-400">3 min de leitura</span>
+                        </div>
+                    </div>
+
+                    <!-- Mini Highlight 2 -->
+                    <div onclick="openNewsModal('trend2')" class="glass-card rounded-2xl p-4 hover:border-pitch-500/50 cursor-pointer transition-all group flex gap-4 items-center">
+                        <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 relative">
+                            <img src="https://images.unsplash.com/photo-1522778119026-d647f0596c20?q=80&w=300&auto=format&fit=crop" alt="Champions League" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold text-blue-400 uppercase">Champions League</span>
+                            <h2 class="text-sm font-bold text-slate-100 group-hover:text-pitch-400 transition-colors line-clamp-2">
+                                Real Madrid define escalação ofensiva para semifinal decisiva
+                            </h2>
+                            <span class="text-xs text-slate-400">5 min de leitura</span>
+                        </div>
+                    </div>
+
+                    <!-- Mini Highlight 3 -->
+                    <div onclick="openNewsModal('trend3')" class="glass-card rounded-2xl p-4 hover:border-pitch-500/50 cursor-pointer transition-all group flex gap-4 items-center">
+                        <div class="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 relative">
+                            <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=300&auto=format&fit=crop" alt="Seleção Brasileira" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        </div>
+                        <div class="space-y-1">
+                            <span class="text-[10px] font-bold text-yellow-400 uppercase">Seleção Brasileira</span>
+                            <h2 class="text-sm font-bold text-slate-100 group-hover:text-pitch-400 transition-colors line-clamp-2">
+                                Técnico convoca promessas da Série A para próximos amistosos
+                            </h2>
+                            <span class="text-xs text-slate-400">4 min de leitura</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CENTRAL DE PLACARES AO VIVO -->
+        <section id="placares" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="relative flex h-3 w-3">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                        </span>
+                        <h2 class="text-2xl font-black tracking-tight">Central de Placares</h2>
+                    </div>
+                    <p class="text-sm text-slate-400">Acompanhe os resultados ao vivo e próximos confrontos</p>
+                </div>
+
+                <!-- Filtros de Campeonato -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
+                    <button onclick="filterMatches('todos')" class="match-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-pitch-500 text-slate-950 shadow-md">Todos</button>
+                    <button onclick="filterMatches('brasileirao')" class="match-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">Brasileirão</button>
+                    <button onclick="filterMatches('champions')" class="match-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">Champions</button>
+                    <button onclick="filterMatches('libertadores')" class="match-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700">Libertadores</button>
+                </div>
+            </div>
+
+            <!-- Grid de Card de Jogos -->
+            <div id="matchesContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Matches generated via JavaScript -->
+            </div>
+        </section>
+
+        <!-- SEÇÃO DE ÚLTIMAS NOTÍCIAS -->
+        <section id="noticias" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                <div>
+                    <h2 class="text-2xl font-black tracking-tight">Últimas Notícias</h2>
+                    <p class="text-sm text-slate-400">Fique por dentro de tudo que acontece no mundo da bola</p>
+                </div>
+
+                <!-- News Category Filters -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0">
+                    <button onclick="filterNews('todas')" class="news-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-pitch-500 text-slate-950">Todas</button>
+                    <button onclick="filterNews('brasileirao')" class="news-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">Brasileirão</button>
+                    <button onclick="filterNews('mercado')" class="news-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">Mercado da Bola</button>
+                    <button onclick="filterNews('champions')" class="news-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">Champions</button>
+                    <button onclick="filterNews('selecao')" class="news-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700">Seleção</button>
+                </div>
+            </div>
+
+            <!-- Grid de Notícias -->
+            <div id="newsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- News items inserted dynamically via JS -->
+            </div>
+        </section>
+
+        <!-- TABELA DE CLASSIFICAÇÃO INTERATIVA -->
+        <section id="tabelas" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="glass-card rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="trophy" class="w-6 h-6 text-gold-400"></i>
+                            <h2 class="text-2xl font-black tracking-tight">Tabela de Classificação</h2>
+                        </div>
+                        <p class="text-sm text-slate-400">Acompanhe a pontuação atualizada dos principais torneios</p>
+                    </div>
+
+                    <!-- League Switcher Tabs -->
+                    <div class="flex items-center gap-2 bg-slate-900/80 p-1.5 rounded-2xl border border-slate-800">
+                        <button onclick="switchTable('brasileirao')" id="tab-brasileirao" class="table-tab px-4 py-2 rounded-xl text-xs font-bold transition-all bg-pitch-500 text-slate-950">
+                            Brasileirão
+                        </button>
+                        <button onclick="switchTable('champions')" id="tab-champions" class="table-tab px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white">
+                            Champions League
+                        </button>
+                        <button onclick="switchTable('libertadores')" id="tab-libertadores" class="table-tab px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white">
+                            Libertadores
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Table Content -->
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="text-xs uppercase bg-slate-800/50 text-slate-400 border-b border-slate-800">
+                            <tr>
+                                <th scope="col" class="py-3.5 px-4 rounded-l-xl">Pos</th>
+                                <th scope="col" class="py-3.5 px-4">Clube</th>
+                                <th scope="col" class="py-3.5 px-3 text-center">PTS</th>
+                                <th scope="col" class="py-3.5 px-3 text-center">J</th>
+                                <th scope="col" class="py-3.5 px-3 text-center">V</th>
+                                <th scope="col" class="py-3.5 px-3 text-center">E</th>
+                                <th scope="col" class="py-3.5 px-3 text-center">D</th>
+                                <th scope="col" class="py-3.5 px-3 text-center">GP</th>
+                                <th scope="col" class="py-3.5 px-3 text-center">GC</th>
+                                <th scope="col" class="py-3.5 px-3 text-center">SG</th>
+                                <th scope="col" class="py-3.5 px-4 text-center rounded-r-xl">Últimos</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody" class="divide-y divide-slate-800/50 font-medium">
+                            <!-- Table rows filled by JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Legend -->
+                <div class="mt-6 pt-4 border-t border-slate-800 flex flex-wrap gap-4 text-xs text-slate-400">
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-emerald-500"></span> Libertadores / Champions
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-blue-500"></span> Pré-Libertadores / Europa League
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-3 h-3 rounded-full bg-red-500"></span> Rebaixamento
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- GALERIA DE VÍDEOS & HIGHLIGHTS -->
+        <section id="videos" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="video" class="w-6 h-6 text-pitch-400"></i>
+                        <h2 class="text-2xl font-black tracking-tight">Destaques em Vídeo</h2>
+                    </div>
+                    <p class="text-sm text-slate-400">Melhores momentos, gols e lances polêmicos da semana</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Video Item 1 -->
+                <div onclick="openVideoModal('Resumo da Rodada', 'Gols incríveis e defesas milagrosas nos melhores jogos da semana', 'https://www.youtube.com/embed/dQw4w9WgXcQ')" class="glass-card rounded-2xl overflow-hidden group border border-slate-800 hover:border-pitch-500/50 transition-all cursor-pointer">
+                    <div class="relative aspect-video bg-slate-800 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=600&auto=format&fit=crop" alt="Melhores Momentos" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-slate-950/40 group-hover:bg-slate-950/20 transition-colors flex items-center justify-center">
+                            <div class="w-12 h-12 rounded-full bg-pitch-500 text-slate-950 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i data-lucide="play" class="w-6 h-6 fill-current ml-0.5"></i>
+                            </div>
+                        </div>
+                        <span class="absolute bottom-3 right-3 px-2 py-1 rounded bg-slate-950/80 text-xs font-mono text-white">08:45</span>
+                    </div>
+                    <div class="p-4 space-y-2">
+                        <span class="text-xs font-bold text-pitch-400 uppercase">Golaços</span>
+                        <h3 class="font-bold text-base text-slate-100 group-hover:text-pitch-400 transition-colors">
+                            Top 10 Golaços de Trivela da Temporada 2026
+                        </h3>
+                        <p class="text-xs text-slate-400">124K visualizações • Há 2 dias</p>
+                    </div>
+                </div>
+
+                <!-- Video Item 2 -->
+                <div onclick="openVideoModal('Análise Tática', 'Como a pressão alta definiu o grande clássico nacional', 'https://www.youtube.com/embed/dQw4w9WgXcQ')" class="glass-card rounded-2xl overflow-hidden group border border-slate-800 hover:border-pitch-500/50 transition-all cursor-pointer">
+                    <div class="relative aspect-video bg-slate-800 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=600&auto=format&fit=crop" alt="Análise Tática" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-slate-950/40 group-hover:bg-slate-950/20 transition-colors flex items-center justify-center">
+                            <div class="w-12 h-12 rounded-full bg-pitch-500 text-slate-950 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i data-lucide="play" class="w-6 h-6 fill-current ml-0.5"></i>
+                            </div>
+                        </div>
+                        <span class="absolute bottom-3 right-3 px-2 py-1 rounded bg-slate-950/80 text-xs font-mono text-white">12:10</span>
+                    </div>
+                    <div class="p-4 space-y-2">
+                        <span class="text-xs font-bold text-blue-400 uppercase">Análise Tática</span>
+                        <h3 class="font-bold text-base text-slate-100 group-hover:text-pitch-400 transition-colors">
+                            Entenda o esquema tático da Seleção para as Eliminatórias
+                        </h3>
+                        <p class="text-xs text-slate-400">89K visualizações • Há 1 dia</p>
+                    </div>
+                </div>
+
+                <!-- Video Item 3 -->
+                <div onclick="openVideoModal('Defesas Espetaculares', 'Milagres debaixo das traves que mudaram os rumos dos jogos', 'https://www.youtube.com/embed/dQw4w9WgXcQ')" class="glass-card rounded-2xl overflow-hidden group border border-slate-800 hover:border-pitch-500/50 transition-all cursor-pointer">
+                    <div class="relative aspect-video bg-slate-800 overflow-hidden">
+                        <img src="https://images.unsplash.com/photo-1551958219-acbc608c6377?q=80&w=600&auto=format&fit=crop" alt="Defesas Milagrosas" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-slate-950/40 group-hover:bg-slate-950/20 transition-colors flex items-center justify-center">
+                            <div class="w-12 h-12 rounded-full bg-pitch-500 text-slate-950 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                <i data-lucide="play" class="w-6 h-6 fill-current ml-0.5"></i>
+                            </div>
+                        </div>
+                        <span class="absolute bottom-3 right-3 px-2 py-1 rounded bg-slate-950/80 text-xs font-mono text-white">05:30</span>
+                    </div>
+                    <div class="p-4 space-y-2">
+                        <span class="text-xs font-bold text-yellow-400 uppercase">Defesas</span>
+                        <h3 class="font-bold text-base text-slate-100 group-hover:text-pitch-400 transition-colors">
+                            As 5 defesas mais difíceis da Champions League nesta semana
+                        </h3>
+                        <p class="text-xs text-slate-400">210K visualizações • Há 3 dias</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- RODAPÉ / FOOTER -->
+    <footer class="bg-slate-900 border-t border-slate-800 text-slate-400 text-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+                <div class="space-y-4 md:col-span-1">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-pitch-500 flex items-center justify-center text-slate-950 font-bold">
+                            <i data-lucide="dribbble" class="w-5 h-5"></i>
+                        </div>
+                        <span class="text-lg font-bold text-white">Futebol em Foco</span>
+                    </div>
+                    <p class="text-xs text-slate-400 leading-relaxed">
+                        Seu portal completo sobre futebol nacional e internacional. Placares ao vivo, notícias em tempo real, análises e tabelas atualizadas.
+                    </p>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold mb-3 text-xs uppercase tracking-wider">Campeonatos</h4>
+                    <ul class="space-y-2 text-xs">
+                        <li><a href="#" class="hover:text-pitch-400 transition-colors">Brasileirão Série A</a></li>
+                        <li><a href="#" class="hover:text-pitch-400 transition-colors">UEFA Champions League</a></li>
+                        <li><a href="#" class="hover:text-pitch-400 transition-colors">Copa Libertadores</a></li>
+                        <li><a href="#" class="hover:text-pitch-400 transition-colors">Copa do Brasil</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold mb-3 text-xs uppercase tracking-wider">Navegação</h4>
+                    <ul class="space-y-2 text-xs">
+                        <li><a href="#placares" class="hover:text-pitch-400 transition-colors">Jogos ao Vivo</a></li>
+                        <li><a href="#noticias" class="hover:text-pitch-400 transition-colors">Últimas Notícias</a></li>
+                        <li><a href="#tabelas" class="hover:text-pitch-400 transition-colors">Tabelas e Classificação</a></li>
+                        <li><a href="#videos" class="hover:text-pitch-400 transition-colors">Vídeos & Melhores Momentos</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4 class="text-white font-bold mb-3 text-xs uppercase tracking-wider">Boletim Informativo</h4>
+                    <p class="text-xs text-slate-400 mb-3">Receba as principais notícias do seu time diariamente.</p>
+                    <form onsubmit="event.preventDefault(); alert('Obrigado por se inscrever!');" class="space-y-2">
+                        <input type="email" placeholder="Seu e-mail..." class="w-full px-3 py-2 rounded-xl bg-slate-800 border border-slate-700 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-pitch-500">
+                        <button type="submit" class="w-full py-2 bg-pitch-500 hover:bg-pitch-600 text-slate-950 font-bold text-xs rounded-xl transition-colors">
+                            Inscrever-se
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="pt-8 border-t border-slate-800 text-center text-xs text-slate-500 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <p>&copy; 2026 Futebol em Foco. Todos os direitos reservados.</p>
+                <div class="flex items-center gap-4">
+                    <a href="#" class="hover:text-slate-400">Termos de Uso</a>
+                    <a href="#" class="hover:text-slate-400">Política de Privacidade</a>
+                    <a href="#" class="hover:text-slate-400">Contato</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- MODAL DE DETALHES DO JOGO (Match Modal) -->
+    <div id="matchModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="glass-card w-full max-w-2xl rounded-3xl p-6 border border-slate-800 shadow-2xl space-y-6 relative max-h-[90vh] overflow-y-auto">
+            <button onclick="closeMatchModal()" class="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+
+            <div class="text-center space-y-1">
+                <span id="modalLeague" class="text-xs font-bold text-pitch-400 uppercase tracking-widest">Campeonato</span>
+                <p id="modalStatus" class="text-xs text-slate-400">Estádio e Hora</p>
+            </div>
+
+            <!-- Scoreboard Display -->
+            <div class="flex items-center justify-between bg-slate-900/90 p-6 rounded-2xl border border-slate-800">
+                <div class="text-center space-y-2 flex-1">
+                    <div id="modalHomeBadge" class="w-16 h-16 rounded-full bg-slate-800 mx-auto flex items-center justify-center text-2xl font-black shadow-inner">
+                        A
+                    </div>
+                    <h3 id="modalHomeTeam" class="font-bold text-lg text-white">Time Casa</h3>
+                </div>
+
+                <div class="text-center px-4">
+                    <div class="text-3xl sm:text-4xl font-black text-pitch-400 tracking-wider">
+                        <span id="modalHomeScore">0</span> - <span id="modalAwayScore">0</span>
+                    </div>
+                    <span id="modalTime" class="inline-block mt-2 px-2.5 py-0.5 rounded-full text-xs font-mono bg-red-500/20 text-red-400 border border-red-500/30">
+                        75'
+                    </span>
+                </div>
+
+                <div class="text-center space-y-2 flex-1">
+                    <div id="modalAwayBadge" class="w-16 h-16 rounded-full bg-slate-800 mx-auto flex items-center justify-center text-2xl font-black shadow-inner">
+                        B
+                    </div>
+                    <h3 id="modalAwayTeam" class="font-bold text-lg text-white">Time Visitante</h3>
+                </div>
+            </div>
+
+            <!-- Timeline & Escalações Tabs -->
+            <div class="space-y-4">
+                <h4 class="font-bold text-sm text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2">
+                    <i data-lucide="activity" class="w-4 h-4 text-pitch-400"></i> Eventos da Partida
+                </h4>
+                <div id="modalTimeline" class="space-y-3 text-xs">
+                    <!-- Event items dynamically loaded -->
+                </div>
+            </div>
+
+            <!-- Escalações Simplificadas -->
+            <div class="space-y-3">
+                <h4 class="font-bold text-sm text-slate-200 border-b border-slate-800 pb-2 flex items-center gap-2">
+                    <i data-lucide="users" class="w-4 h-4 text-pitch-400"></i> Destaques dos Times
+                </h4>
+                <div class="grid grid-cols-2 gap-4 text-xs text-slate-300">
+                    <div id="modalHomeLineup" class="space-y-1 bg-slate-900/50 p-3 rounded-xl"></div>
+                    <div id="modalAwayLineup" class="space-y-1 bg-slate-900/50 p-3 rounded-xl"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE VÍDEO (Video Modal) -->
+    <div id="videoModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div class="glass-card w-full max-w-3xl rounded-3xl p-6 border border-slate-800 shadow-2xl space-y-4 relative">
+            <button onclick="closeVideoModal()" class="absolute top-4 right-4 p-2 rounded-full hover:bg-slate-800 text-slate-400 hover:text-white transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+            <h3 id="videoModalTitle" class="text-xl font-bold text-white">Título do Vídeo</h3>
+            <div class="aspect-video bg-slate-900 rounded-2xl overflow-hidden border border-slate-800">
+                <iframe id="videoModalIframe" class="w-full h-full" src="" title="Video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+            <p id="videoModalDesc" class="text-xs text-slate-400">Descrição do vídeo selecionado.</p>
+        </div>
+    </div>
+
+    <!-- JAVASCRIPT LÓGICA E DADOS DO SITE -->
+    <script>
+        // Data Store
+        const matchesData = [
+            {
+                id: 1,
+                league: 'Brasileirão',
+                leagueKey: 'brasileirao',
+                homeTeam: 'Flamengo',
+                awayTeam: 'Palmeiras',
+                homeBadge: '🔴',
+                awayBadge: '🟢',
+                homeScore: 2,
+                awayScore: 1,
+                status: 'AO VIVO',
+                time: "78'",
+                isLive: true,
+                stadium: 'Maracanã, Rio de Janeiro',
+                events: [
+                    { time: "12'", team: 'Flamengo', text: '⚽ Gol de Arrascaeta (Assistência de Pedro)' },
+                    { time: "34'", team: 'Palmeiras', text: '⚽ Gol de Endrick (Chute forte de fora da área)' },
+                    { time: "65'", team: 'Flamengo', text: '⚽ Gol de Gabigol (Pênalti)' },
+                    { time: "71'", team: 'Palmeiras', text: '🟨 Cartão Amarelo para Gustavo Gómez' }
+                ],
+                homeLineup: ['Rossi', 'Varela', 'Léo Ortiz', 'Léo Pereira', 'Ayrton Lucas', 'Pulgar', 'De La Cruz', 'Arrascaeta'],
+                awayLineup: ['Weverton', 'Mayke', 'Gómez', 'Murilo', 'Piquerez', 'Zé Rafael', 'Richard Ríos', 'Veiga']
+            },
+            {
+                id: 2,
+                league: 'Champions League',
+                leagueKey: 'champions',
+                homeTeam: 'Real Madrid',
+                awayTeam: 'Barcelona',
+                homeBadge: '⚪',
+                awayBadge: '🔵',
+                homeScore: 3,
+                awayScore: 2,
+                status: 'AO VIVO',
+                time: "88'",
+                isLive: true,
+                stadium: 'Santiago Bernabéu, Madrid',
+                events: [
+                    { time: "05'", team: 'Barcelona', text: '⚽ Gol de Lewandowski' },
+                    { time: "22'", team: 'Real Madrid', text: '⚽ Gol de Vinicius Jr.' },
+                    { time: "55'", team: 'Real Madrid', text: '⚽ Gol de Jude Bellingham' },
+                    { time: "70'", team: 'Barcelona', text: '⚽ Gol de Lamine Yamal' },
+                    { time: "83'", team: 'Real Madrid', text: '⚽ Gol de Rodrygo' }
+                ],
+                homeLineup: ['Courtois', 'Carvajal', 'Rüdiger', 'Militao', 'Mendy', 'Valverde', 'Camavinga', 'Bellingham'],
+                awayLineup: ['Ter Stegen', 'Koundé', 'Araujo', 'Cubarsí', 'Cancelo', 'De Jong', 'Pedri', 'Gündogan']
+            },
+            {
+                id: 3,
+                league: 'Libertadores',
+                leagueKey: 'libertadores',
+                homeTeam: 'River Plate',
+                awayTeam: 'Boca Juniors',
+                homeBadge: '⚪',
+                awayBadge: '🟡',
+                homeScore: 0,
+                awayScore: 0,
+                status: 'HOJE',
+                time: "21:30",
+                isLive: false,
+                stadium: 'Mônumental de Nuñez, Buenos Aires',
+                events: [
+                    { time: '-', team: '-', text: 'Partida prestes a começar' }
+                ],
+                homeLineup: ['Armani', 'Herrera', 'Pirez', 'Paulo Díaz', 'Enzo Díaz', 'Aliendro', 'Nacho Fernández'],
+                awayLineup: ['Romero', 'Advíncula', 'Lema', 'Rojo', 'Blanco', 'Equi Fernández', 'Medel']
+            },
+            {
+                id: 4,
+                league: 'Brasileirão',
+                leagueKey: 'brasileirao',
+                homeTeam: 'São Paulo',
+                awayTeam: 'Corinthians',
+                homeBadge: '🔴',
+                awayBadge: '⚪',
+                homeScore: 1,
+                awayScore: 1,
+                status: 'FINALIZADO',
+                time: "FIM",
+                isLive: false,
+                stadium: 'Morumbis, São Paulo',
+                events: [
+                    { time: "20'", team: 'São Paulo', text: '⚽ Gol de Lucas Moura' },
+                    { time: "60'", team: 'Corinthians', text: '⚽ Gol de Yuri Alberto' }
+                ],
+                homeLineup: ['Rafael', 'Igor Vinícius', 'Arboleda', 'Diego Costa', 'Wellington', 'Pablo Maia', 'Alisson'],
+                awayLineup: ['Cássio', 'Fagner', 'Torres', 'Gustavo Henrique', 'Hugo', 'Raniele', 'Garro']
+            }
+        ];
+
+        const newsData = [
+            {
+                id: 'n1',
+                title: 'Neymar se recupera e deve voltar aos gramados no próximo mês',
+                category: 'Seleção',
+                categoryKey: 'selecao',
+                readTime: '3 min',
+                image: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=400&auto=format&fit=crop',
+                summary: 'Atacante passa por última etapa de avaliação física e tem retorno previsto para o próximo confronto internacional.'
+            },
+            {
+                id: 'n2',
+                title: 'Análise: Como a tática do Palmeiras neutralizou os pontas rivais',
+                category: 'Brasileirão',
+                categoryKey: 'brasileirao',
+                readTime: '5 min',
+                image: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=400&auto=format&fit=crop',
+                summary: 'Dobra de marcação pelas laterais e recomposição rápida foram a chave para a vitória no último clássico.'
+            },
+            {
+                id: 'n3',
+                title: 'Janela Europeia: Clubes ingleses preparam ofertas astronômicas',
+                category: 'Mercado da Bola',
+                categoryKey: 'mercado',
+                readTime: '4 min',
+                image: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?q=80&w=400&auto=format&fit=crop',
+                summary: 'Promessas do futebol sul-americano continuam na mira de olheiros da Premier League para o meio da temporada.'
+            },
+            {
+                id: 'n4',
+                title: 'Champions League define confrontos das quartas de final',
+                category: 'Champions',
+                categoryKey: 'champions',
+                readTime: '6 min',
+                image: 'https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=400&auto=format&fit=crop',
+                summary: 'Sorteio na Suíça coloca gigantes frente a frente em sorteio marcado por reencontros históricos.'
+            }
+        ];
+
+        const tablesData = {
+            brasileirao: [
+                { pos: 1, club: 'Flamengo', pts: 48, j: 22, v: 14, e: 6, d: 2, gp: 42, gc: 18, sg: 24, form: ['W','W','D','W','W'] },
+                { pos: 2, club: 'Palmeiras', pts: 46, j: 22, v: 14, e: 4, d: 4, gp: 38, gc: 19, sg: 19, form: ['W','L','W','W','D'] },
+                { pos: 3, club: 'Botafogo', pts: 43, j: 22, v: 13, e: 4, d: 5, gp: 35, gc: 22, sg: 13, form: ['D','W','W','L','W'] },
+                { pos: 4, club: 'São Paulo', pts: 39, j: 22, v: 11, e: 6, d: 5, gp: 31, gc: 21, sg: 10, form: ['W','D','D','W','L'] },
+                { pos: 5, club: 'Internacional', pts: 35, j: 22, v: 10, e: 5, d: 7, gp: 28, gc: 24, sg: 4, form: ['L','W','W','D','W'] },
+                { pos: 6, club: 'Gremio', pts: 32, j: 22, v: 9, e: 5, d: 8, gp: 26, gc: 27, sg: -1, form: ['W','L','D','L','W'] }
+            ],
+            champions: [
+                { pos: 1, club: 'Real Madrid', pts: 18, j: 6, v: 6, e: 0, d: 0, gp: 16, gc: 4, sg: 12, form: ['W','W','W','W','W'] },
+                { pos: 2, club: 'Manchester City', pts: 14, j: 6, v: 4, e: 2, d: 0, gp: 14, gc: 5, sg: 9, form: ['W','D','W','W','D'] },
+                { pos: 3, club: 'Bayern München', pts: 13, j: 6, v: 4, e: 1, d: 1, gp: 12, gc: 6, sg: 6, form: ['W','W','L','W','D'] },
+                { pos: 4, club: 'Arsenal', pts: 12, j: 6, v: 3, e: 3, d: 0, gp: 10, gc: 4, sg: 6, form: ['D','W','D','W','W'] }
+            ],
+            libertadores: [
+                { pos: 1, club: 'River Plate', pts: 16, j: 6, v: 5, e: 1, d: 0, gp: 13, gc: 3, sg: 10, form: ['W','W','W','D','W'] },
+                { pos: 2, club: 'Atletico-MG', pts: 13, j: 6, v: 4, e: 1, d: 1, gp: 10, gc: 5, sg: 5, form: ['W','L','W','W','D'] },
+                { pos: 3, club: 'Fluminense', pts: 11, j: 6, v: 3, e: 2, d: 1, gp: 9, gc: 6, sg: 3, form: ['D','W','D','W','L'] },
+                { pos: 4, club: 'Liga de Quito', pts: 8, j: 6, v: 2, e: 2, d: 2, gp: 7, gc: 8, sg: -1, form: ['L','W','L','D','W'] }
+            ]
+        };
+
+        // Render Matches
+        function renderMatches(filter = 'todos') {
+            const container = document.getElementById('matchesContainer');
+            container.innerHTML = '';
+
+            const filtered = filter === 'todos' ? matchesData : matchesData.filter(m => m.leagueKey === filter);
+
+            filtered.forEach(match => {
+                const card = document.createElement('div');
+                card.className = `glass-card rounded-2xl p-5 border border-slate-800 hover:border-pitch-500/50 transition-all cursor-pointer relative overflow-hidden group`;
+                card.onclick = () => openMatchModal(match.id);
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs font-bold text-slate-400 flex items-center gap-1.5">
+                            <i data-lucide="trophy" class="w-3.5 h-3.5 text-pitch-500"></i>
+                            ${match.league}
+                        </span>
+                        ${match.isLive ? 
+                            `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-red-500/20 text-red-400 border border-red-500/30 pulse-live">
+                                ${match.status} ${match.time}
+                             </span>` : 
+                            `<span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300">
+                                ${match.status} ${match.time}
+                             </span>`
+                        }
+                    </div>
+
+                    <div class="flex items-center justify-between my-2">
+                        <!-- Home Team -->
+                        <div class="flex items-center gap-3 flex-1">
+                            <span class="text-2xl">${match.homeBadge}</span>
+                            <span class="font-bold text-sm text-slate-100 group-hover:text-pitch-400 transition-colors">${match.homeTeam}</span>
+                        </div>
+                        <span class="text-xl font-black text-white px-2">${match.homeScore}</span>
+                    </div>
+
+                    <div class="flex items-center justify-between my-2">
+                        <!-- Away Team -->
+                        <div class="flex items-center gap-3 flex-1">
+                            <span class="text-2xl">${match.awayBadge}</span>
+                            <span class="font-bold text-sm text-slate-100 group-hover:text-pitch-400 transition-colors">${match.awayTeam}</span>
+                        </div>
+                        <span class="text-xl font-black text-white px-2">${match.awayScore}</span>
+                    </div>
+
+                    <div class="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+                        <span class="truncate max-w-[200px]">${match.stadium}</span>
+                        <span class="text-pitch-400 font-medium flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                            Detalhes <i data-lucide="chevron-right" class="w-3.5 h-3.5"></i>
+                        </span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        // Render News
+        function renderNews(filter = 'todas') {
+            const container = document.getElementById('newsGrid');
+            container.innerHTML = '';
+
+            const filtered = filter === 'todas' ? newsData : newsData.filter(n => n.categoryKey === filter);
+
+            filtered.forEach(news => {
+                const card = document.createElement('div');
+                card.className = "glass-card rounded-2xl overflow-hidden group border border-slate-800 hover:border-pitch-500/50 transition-all cursor-pointer flex flex-col justify-between";
+                card.onclick = () => openNewsModal(news.id);
+
+                card.innerHTML = `
+                    <div>
+                        <div class="relative h-44 overflow-hidden">
+                            <img src="${news.image}" alt="${news.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <span class="absolute top-3 left-3 px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-950/80 backdrop-blur-md text-pitch-400 border border-slate-800">
+                                ${news.category}
+                            </span>
+                        </div>
+                        <div class="p-4 space-y-2">
+                            <h3 class="font-bold text-base text-slate-100 group-hover:text-pitch-400 transition-colors line-clamp-2">
+                                ${news.title}
+                            </h3>
+                            <p class="text-xs text-slate-400 line-clamp-2">${news.summary}</p>
+                        </div>
+                    </div>
+                    <div class="p-4 pt-0 flex items-center justify-between text-xs text-slate-500">
+                        <span>${news.readTime} de leitura</span>
+                        <i data-lucide="arrow-up-right" class="w-4 h-4 text-pitch-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"></i>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+            lucide.createIcons();
+        }
+
+        // Render Table Standings
+        function switchTable(leagueKey) {
+            // Update active tabs
+            document.querySelectorAll('.table-tab').forEach(btn => {
+                btn.className = "table-tab px-4 py-2 rounded-xl text-xs font-bold transition-all text-slate-400 hover:text-white";
+            });
+            const activeTab = document.getElementById(`tab-${leagueKey}`);
+            if(activeTab) {
+                activeTab.className = "table-tab px-4 py-2 rounded-xl text-xs font-bold transition-all bg-pitch-500 text-slate-950 shadow-md";
+            }
+
+            const tbody = document.getElementById('tableBody');
+            tbody.innerHTML = '';
+
+            const list = tablesData[leagueKey] || [];
+            list.forEach(item => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-800/30 transition-colors";
+
+                let posBadge = "text-slate-400";
+                if(item.pos <= 4) posBadge = "text-emerald-400 font-bold";
+                else if(item.pos <= 6) posBadge = "text-blue-400 font-bold";
+
+                tr.innerHTML = `
+                    <td class="py-3 px-4 ${posBadge}">${item.pos}º</td>
+                    <td class="py-3 px-4 font-bold text-slate-100">${item.club}</td>
+                    <td class="py-3 px-3 text-center font-black text-pitch-400">${item.pts}</td>
+                    <td class="py-3 px-3 text-center text-slate-300">${item.j}</td>
+                    <td class="py-3 px-3 text-center text-slate-300">${item.v}</td>
+                    <td class="py-3 px-3 text-center text-slate-300">${item.e}</td>
+                    <td class="py-3 px-3 text-center text-slate-300">${item.d}</td>
+                    <td class="py-3 px-3 text-center text-slate-400">${item.gp}</td>
+                    <td class="py-3 px-3 text-center text-slate-400">${item.gc}</td>
+                    <td class="py-3 px-3 text-center font-semibold text-slate-200">${item.sg}</td>
+                    <td class="py-3 px-4 text-center">
+                        <div class="flex items-center justify-center gap-1">
+                            ${item.form.map(f => {
+                                let bg = f === 'W' ? 'bg-emerald-500' : f === 'D' ? 'bg-slate-500' : 'bg-red-500';
+                                return `<span class="w-2 h-2 rounded-full ${bg}"></span>`;
+                            }).join('')}
+                        </div>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Filter Actions
+        function filterMatches(key) {
+            document.querySelectorAll('.match-filter-btn').forEach(btn => {
+                btn.className = "match-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-slate-800 text-slate-300 hover:bg-slate-700";
+            });
+            event.target.className = "match-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition-all bg-pitch-500 text-slate-950 shadow-md";
+            renderMatches(key);
+        }
+
+        function filterNews(key) {
+            document.querySelectorAll('.news-filter-btn').forEach(btn => {
+                btn.className = "news-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700";
+            });
+            event.target.className = "news-filter-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold bg-pitch-500 text-slate-950";
+            renderNews(key);
+        }
+
+        // Modal Handlers
+        function openMatchModal(id) {
+            const match = matchesData.find(m => m.id === id);
+            if (!match) return;
+
+            document.getElementById('modalLeague').textContent = match.league;
+            document.getElementById('modalStatus').textContent = match.stadium;
+            document.getElementById('modalHomeBadge').textContent = match.homeBadge;
+            document.getElementById('modalAwayBadge').textContent = match.awayBadge;
+            document.getElementById('modalHomeTeam').textContent = match.homeTeam;
+            document.getElementById('modalAwayTeam').textContent = match.awayTeam;
+            document.getElementById('modalHomeScore').textContent = match.homeScore;
+            document.getElementById('modalAwayScore').textContent = match.awayScore;
+            document.getElementById('modalTime').textContent = match.time;
+
+            const timeline = document.getElementById('modalTimeline');
+            timeline.innerHTML = match.events.map(ev => `
+                <div class="flex items-center justify-between p-2 rounded-lg bg-slate-900/60 border border-slate-800">
+                    <span class="font-bold text-pitch-400">${ev.time}</span>
+                    <span class="text-slate-200">${ev.text}</span>
+                    <span class="text-xs text-slate-400">${ev.team}</span>
+                </div>
+            `).join('');
+
+            document.getElementById('modalHomeLineup').innerHTML = `<span class="font-bold text-white block mb-1">${match.homeTeam}:</span>` + match.homeLineup.join(', ');
+            document.getElementById('modalAwayLineup').innerHTML = `<span class="font-bold text-white block mb-1">${match.awayTeam}:</span>` + match.awayLineup.join(', ');
+
+            document.getElementById('matchModal').classList.remove('hidden');
+        }
+
+        function closeMatchModal() {
+            document.getElementById('matchModal').classList.add('hidden');
+        }
+
+        function openNewsModal(newsId) {
+            alert('Acessando matéria completa do artigo selecionado...');
+        }
+
+        function openVideoModal(title, desc, embedUrl) {
+            document.getElementById('videoModalTitle').textContent = title;
+            document.getElementById('videoModalDesc').textContent = desc;
+            document.getElementById('videoModalIframe').src = embedUrl;
+            document.getElementById('videoModal').classList.remove('hidden');
+        }
+
+        function closeVideoModal() {
+            document.getElementById('videoModalIframe').src = '';
+            document.getElementById('videoModal').classList.add('hidden');
+        }
+
+        // Hero Slider Logic
+        const heroSlides = [
+            {
+                title: 'Decisão Gloriosa: Flamengo e Palmeiras travam duelo histórico pela liderança',
+                subtitle: 'Com Maracanã lotado, equipes medem forças valendo o topo da tabela do Brasileirão em jogo de alta intensidade táctica.',
+                category: 'Super Clássico',
+                bg: 'https://images.unsplash.com/photo-1508098682722-e99c43a406b2?q=80&w=1200&auto=format&fit=crop'
+            },
+            {
+                title: 'Noite de El Clásico: Real Madrid e Barcelona prontos para o confronto na Espanha',
+                subtitle: 'Estrelas mundiais entram em campo na disputa direta pelo título da liga espanhola.',
+                category: 'Champions League',
+                bg: 'https://images.unsplash.com/photo-1522778119026-d647f0596c20?q=80&w=1200&auto=format&fit=crop'
+            },
+            {
+                title: 'Libertadores em Chamas: River Plate recebe Boca Juniors em clima de decisão',
+                subtitle: 'Superclássico argentino promete estremecer o continente valendo vaga na grande final.',
+                category: 'Libertadores',
+                bg: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1200&auto=format&fit=crop'
+            }
+        ];
+
+        function setHeroSlide(index) {
+            const slide = heroSlides[index];
+            document.getElementById('heroBg').style.backgroundImage = `url('${slide.bg}')`;
+            document.getElementById('heroTitle').textContent = slide.title;
+            document.getElementById('heroSubtitle').textContent = slide.subtitle;
+            document.getElementById('heroCategory').textContent = slide.category;
+
+            const dots = document.querySelectorAll('.hero-dot');
+            dots.forEach((dot, i) => {
+                if(i === index) {
+                    dot.className = "hero-dot w-8 h-2 rounded-full bg-pitch-500 transition-all";
+                } else {
+                    dot.className = "hero-dot w-2 h-2 rounded-full bg-slate-600 hover:bg-slate-400 transition-all";
+                }
+            });
+        }
+
+        // Theme Toggle Handler
+        const themeToggleBtn = document.getElementById('themeToggle');
+        themeToggleBtn.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            document.documentElement.classList.toggle('light');
+        });
+
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        // Initialize Page Data
+        window.onload = function() {
+            lucide.createIcons();
+            renderMatches();
+            renderNews();
+            switchTable('brasileirao');
+        };
+    </script>
+</body>
+</html>
